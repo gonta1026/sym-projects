@@ -1,12 +1,19 @@
-{% extends 'base.html.twig' %}
 
+{% extends 'base.html.twig' %}
+{# {% import 'macro.html.twig' as m %} #}
 
 {% block page %}{{title}}{% endblock %}
 {% block title %}{{title}}{% endblock %}
-
-
 {% block body %}
-<p>{{message}}</p>
+<p>※フォームを用意します。</p>
+{% include '/hello/form.html.twig' with [data]%}
+<p>※テーブルを用意します。</p>
+{% include '/hello/table.html.twig' with [data] %}
 {% endblock %}
+
+
+
+
+
 
 

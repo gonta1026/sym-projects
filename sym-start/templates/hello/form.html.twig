@@ -1,0 +1,10 @@
+{# こちらのファイルはテンプレート用のファイルです。 #}
+
+{# マクロを呼ぶ。 #}
+{% import 'macro.html.twig' as m %}
+<table>
+{{ m.input('text', 'Name', 'noname') }}
+{{ m.input('number', 'Age', '0') }}
+{{ m.input('email', 'Mail', 'no@mail') }}
+{{ m.submit('Click') }}
+</table>

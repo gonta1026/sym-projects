@@ -6,7 +6,11 @@
 
 
 {% block body %}
-<h2>hoege Entisssty</h2>
+<h2>Find Entisssty</h2>
+{{ form_start(form) }}
+{{ form_widget(form) }}
+{{ form_end(form) }}
+<hr>
 {% if data != null %}
     <table>
         <tr><th>Id</th><td>{{data.id}}</td></tr>

@@ -19,6 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use App\Form\PersonType;
+// use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;//これいらないかも
 
 class HelloController extends AbstractController
 {
@@ -59,48 +61,40 @@ class HelloController extends AbstractController
             'data' => $result,
         ]);
     }
-    /**
-     * @Route("/create", name="create")
-     */
-    public function create(Request $request)
-    {
-        $person = new Person();
-        $form = $this->createFormBuilder($person)
-            ->add('name', TextType::class)
-            ->add('mail', TextType::class)
-            ->add('age', IntegerType::class)
-            ->add('save', SubmitType::class, array('label' => 'Click'))
-            ->getForm();
-        if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);;//ハンドリング
-            $person = $form->getData();//インスタンスを作る
-            $manager = $this->getDoctrine()->getManager();//マネージャーを取得
-            $manager->persist($person);//マネージャーにpersonを紐づけて保存
-            $manager->flush();//DBへ反映
-            return $this->redirect('/hello');//リダイレクト
-        } else {
-            return $this->render('hello/create.html.twig', [
-                'title' => 'Hello',
-                'message' => 'Create Entity',
-                'form' => $form->createView(),
-            ]);
-        }
+
+  /**
+ * @Route("/create", name="create")
+ */
+public function create(Request $request)
+{
+    //$person = new Person();//インスタンスを作ってフォームに渡していたがconfigureOptionsであらかじめに設定していたら不要になる。
+    //PersonType::classを呼びだすことであらかじめにフォームが作られたものを渡す。
+    $form = $this->createForm(PersonType::class);
+    $form->handleRequest($request);
+    if ($request->getMethod() == 'POST'){
+        $person = $form->getData();
+        $manager = $this->getDoctrine()->getManager();
+        $manager->persist($person);
+        $manager->flush();
+        return $this->redirect('/hello');
+    } else {
+        return $this->render('hello/create.html.twig', [
+            'title' => 'Hello',
+            'message' => 'Create Entity',
+            'form' => $form->createView(),
+        ]); 
     }
+}
  
     /**
      * @Route("/update/{id}", name="update")
      */
     public function update(Request $request, Person $person)//createとほとんど変わらない
     {
-        $form = $this->createFormBuilder($person)//$personにidで取得したユーザの情報が取得できる
-            ->add('name', TextType::class)
-            ->add('mail', TextType::class)
-            ->add('age', IntegerType::class)
-            ->add('save', SubmitType::class, array('label' => 'Click'))
-            ->getForm();
+        $form = $this->createForm(PersonType::class, $person);
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);//ハンドリング
-            $manager = $this->getDoctrine()->getManager();
+            $manager = $this->getDoctrine()->getManager();//バインドされたフォームの値を取得
             $manager->flush();//Symfonyは取得されたエンティティの内容が変更される操作をすベてチェックしているため更新時はpersistは不要らしい。
             return $this->redirect('/hello');
         } else {

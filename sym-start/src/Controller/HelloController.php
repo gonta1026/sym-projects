@@ -20,6 +20,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use App\Form\PersonType;
+use App\Form\FindType;
 // use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;//これいらないかも
 
 class HelloController extends AbstractController
@@ -40,52 +41,49 @@ class HelloController extends AbstractController
     /**
      * @Route("/find", name="find")
      */
-    public function find(Request $request) //検索用のアクション
+    public function find(Request $request)
     {
-        $formobj = new FindForm();
-        $form = $this->createFormBuilder($formobj) /* フォームを作成 */
-            ->add('find', TextType::class)
-            ->add('save', SubmitType::class, array('label' => 'Click'))
-            ->getForm();
+        $form = $this->createForm(FindType::class);
         if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);//フォームの情報を$formに結びつける
-            $find_id = $form->getData()->getFind();/* 検索した文字列を取得 */
-            $repository = $this->getDoctrine()->getRepository(Person::class);/* リポジトリーを取得 */
-            $result = $repository->find($find_id);/* 結果を取得 */
+            $form->handleRequest($request);
+            $findstr = $form->getData()->getFind();
+            $repository = $this->getDoctrine()
+                ->getRepository(Person::class);
+            $result = $repository->findByName($findstr);
         } else {
             $result = null;
         }
-        return $this->render("hello/find.html.twig", [
+        return $this->render('hello/find.html.twig', [
             'title' => 'Hello',
-            'form' => $form->createView(),//ビューにフォームを作って渡す
+            'form' => $form->createView(),
             'data' => $result,
         ]);
     }
 
-  /**
- * @Route("/create", name="create")
- */
-public function create(Request $request)
-{
-    //$person = new Person();//インスタンスを作ってフォームに渡していたがconfigureOptionsであらかじめに設定していたら不要になる。
-    //PersonType::classを呼びだすことであらかじめにフォームが作られたものを渡す。
-    $form = $this->createForm(PersonType::class);
-    $form->handleRequest($request);
-    if ($request->getMethod() == 'POST'){
-        $person = $form->getData();
-        $manager = $this->getDoctrine()->getManager();
-        $manager->persist($person);
-        $manager->flush();
-        return $this->redirect('/hello');
-    } else {
-        return $this->render('hello/create.html.twig', [
-            'title' => 'Hello',
-            'message' => 'Create Entity',
-            'form' => $form->createView(),
-        ]); 
+    /**
+     * @Route("/create", name="create")
+     */
+    public function create(Request $request)
+    {
+        //$person = new Person();//インスタンスを作ってフォームに渡していたがconfigureOptionsであらかじめに設定していたら不要になる。
+        //PersonType::classを呼びだすことであらかじめにフォームが作られたものを渡す。
+        $form = $this->createForm(PersonType::class);
+        $form->handleRequest($request);
+        if ($request->getMethod() == 'POST'){
+            $person = $form->getData();
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($person);
+            $manager->flush();
+            return $this->redirect('/hello');
+        } else {
+            return $this->render('hello/create.html.twig', [
+                'title' => 'Hello',
+                'message' => 'Create Entity',
+                'form' => $form->createView(),
+            ]); 
+        }
     }
-}
- 
+
     /**
      * @Route("/update/{id}", name="update")
      */
@@ -119,16 +117,6 @@ public function create(Request $request)
 }
 
 
-class FindForm//検索用のフォームの作成に必要なクラス
-{
-    private $find;
 
-    public function getFind() //おそらく名前は規則的になっているので注意（get　＋　クラス名）
-    {
-        return $this->find;
-    }
-    public function setFind($find)//おそらく名前は規則的になっているので注意（set　＋　クラス名）
-    {
-        $this->find = $find;
-    }
-}
+
+// $result = $repository->findBy(['name' => $findstr]);

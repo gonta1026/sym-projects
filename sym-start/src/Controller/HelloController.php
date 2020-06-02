@@ -10,6 +10,7 @@ use App\Entity\Person;
 // 基本クラス（たくさんのメソッドにアクセスできる）
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+//リクエスト、レスポンスクラス
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 #アノテーション
@@ -18,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-
 
 class HelloController extends AbstractController
 {
@@ -47,15 +47,15 @@ class HelloController extends AbstractController
             ->getForm();
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);//フォームの情報を$formに結びつける
-            $findstr = $form->getData()->getFind();/* 検索した文字列を取得 */
+            $find_id = $form->getData()->getFind();/* 検索した文字列を取得 */
             $repository = $this->getDoctrine()->getRepository(Person::class);/* リポジトリーを取得 */
-            $result = $repository->find($findstr);/* 結果を取得 */
+            $result = $repository->find($find_id);/* 結果を取得 */
         } else {
             $result = null;
         }
         return $this->render("hello/find.html.twig", [
             'title' => 'Hello',
-            'form' => $form->createView(),
+            'form' => $form->createView(),//ビューにフォームを作って渡す
             'data' => $result,
         ]);
     }
@@ -71,15 +71,13 @@ class HelloController extends AbstractController
             ->add('age', IntegerType::class)
             ->add('save', SubmitType::class, array('label' => 'Click'))
             ->getForm();
-
-
         if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);
-            $person = $form->getData();
-            $manager = $this->getDoctrine()->getManager();
-            $manager->persist($person);
-            $manager->flush();
-            return $this->redirect('/hello');
+            $form->handleRequest($request);;//ハンドリング
+            $person = $form->getData();//インスタンスを作る
+            $manager = $this->getDoctrine()->getManager();//マネージャーを取得
+            $manager->persist($person);//マネージャーにpersonを紐づけて保存
+            $manager->flush();//DBへ反映
+            return $this->redirect('/hello');//リダイレクト
         } else {
             return $this->render('hello/create.html.twig', [
                 'title' => 'Hello',
@@ -88,19 +86,54 @@ class HelloController extends AbstractController
             ]);
         }
     }
+ 
+    /**
+     * @Route("/update/{id}", name="update")
+     */
+    public function update(Request $request, Person $person)//createとほとんど変わらない
+    {
+        $form = $this->createFormBuilder($person)//$personにidで取得したユーザの情報が取得できる
+            ->add('name', TextType::class)
+            ->add('mail', TextType::class)
+            ->add('age', IntegerType::class)
+            ->add('save', SubmitType::class, array('label' => 'Click'))
+            ->getForm();
+        if ($request->getMethod() == 'POST') {
+            $form->handleRequest($request);//ハンドリング
+            $manager = $this->getDoctrine()->getManager();
+            $manager->flush();//Symfonyは取得されたエンティティの内容が変更される操作をすベてチェックしているため更新時はpersistは不要らしい。
+            return $this->redirect('/hello');
+        } else {
+            return $this->render('hello/create.html.twig', [
+                'title' => 'Hello',
+                'message' => 'Update Entity id=' . $person->getId(),
+                'form' => $form->createView(),
+            ]);
+        }
+    }
 
+    /**
+     * @Route("/delete/{id}", name="delete")
+     */
+    public function delete(Request $request, Person $person)
+    {
+        $manager = $this->getDoctrine()->getManager();//マネージャーを作成
+        $manager->remove($person);//削除準備
+        $manager->flush();//DBへ永続化
+        return $this->redirect('/hello');
+    }
 }
 
-//フォームの作成に必要なクラスを作成
-class FindForm
+
+class FindForm//検索用のフォームの作成に必要なクラス
 {
     private $find;
 
-    public function getFind() //おそらく名前は規則的になっているので注意
+    public function getFind() //おそらく名前は規則的になっているので注意（get　＋　クラス名）
     {
         return $this->find;
     }
-    public function setFind($find)
+    public function setFind($find)//おそらく名前は規則的になっているので注意（set　＋　クラス名）
     {
         $this->find = $find;
     }

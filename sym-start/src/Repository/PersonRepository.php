@@ -12,14 +12,13 @@ class PersonRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Person::class);
     }
-    //下記からは追加したメソッドです。
-    // public function findByName($value)
-    // {
-    //     var_dump($value);
-    //     return $this->createQueryBuilder('p')//  "p"はエイリアス、テーブルが指定されている。
-    //         ->where('p.name = ?1')
-    //         ->setParameter(1, $value)
-    //         ->getQuery()
-    //         ->getResult();
-    // }
+    //曖昧検索
+    public function findByName($value)
+    {
+        return $this->createQueryBuilder('p')//  "p"はエイリアス、テーブルが指定されている。
+            ->where('p.name like ?1')// = の代わりlikeを使う
+            ->setParameter(1, '%' . $value . '%')//　%でワイルドカード指定をしている
+            ->getQuery()//Queryクラスのインスタンスを取得
+            ->getResult();//queryの実行結果を返す。
+    }
 }

@@ -51,7 +51,35 @@ class HelloController extends AbstractController
                 ->getRepository(Person::class);
             $result = $repository->findByNameOrMail($findstr);
         } else {
-            $result = null;
+            $result = $repository->findAllwithSort();
+        }
+        return $this->render('hello/find.html.twig', [
+            'title' => 'Hello',
+            'form' => $form->createView(),
+            'data' => $result,
+        ]);
+    }
+
+    /**
+     * @Route("/find02", name="find02")
+     */
+    public function find02(Request $request)
+    {
+        $form = $this->createForm(FindType::class);//
+        $repository = $this->getDoctrine()
+            ->getRepository(Person::class);
+        $manager = $this->getDoctrine()->getManager();
+
+        if ($request->getMethod() == 'POST') {
+            $form->handleRequest($request);
+            $findstr = $form->getData()->getFind();
+            $query = $manager->createQuery(        //DQLを使ったパターン
+                "SELECT p FROM App\Entity\Person p 
+            WHERE p.name = '{$findstr}'"
+            );
+            $result = $query->getResult();
+        } else {
+            $result = $repository->findAllwithSort();
         }
         return $this->render('hello/find.html.twig', [
             'title' => 'Hello',

@@ -88,4 +88,12 @@ class PersonRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findAllwithSort()
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.age', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

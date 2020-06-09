@@ -25,20 +25,20 @@ class PersonRepository extends ServiceEntityRepository
     public function findByAge($value)
     {
         return $this->createQueryBuilder('p')
-            ->where('p.age > ?1')
-            ->setParameter(1, $value)
+            ->where('p.age > ?1')//指定した値以上を検索
+            ->setParameter(1, $value) //ここで値をセットする。
             ->getQuery()
             ->getResult();
     }
 
     public function findByAge02($value)
     {
-        $arr = explode(' ', $value);
+        $arr = explode(' ', $value);//空白で区切って配列にする。
         $builder = $this->createQueryBuilder('p');
         return $builder
-            ->where($builder->expr()->gte('p.age', '?1'))
-            ->andWhere($builder->expr()->lte('p.age', '?2'))
-            ->setParameters(array(1 => $arr[0], 2 => $arr[1]))
+            ->where($builder->expr()->gte('p.age', '?1')) //以上
+            ->andWhere($builder->expr()->lte('p.age', '?2'))//以下
+            ->setParameters(array(1 => $arr[0], 2 => $arr[1]))//セット
             ->getQuery()
             ->getResult();
     }
@@ -47,7 +47,7 @@ class PersonRepository extends ServiceEntityRepository
     {
         $arr = explode(',', $value);// 『,』で区切った複数検索
         return $this->createQueryBuilder('p')
-            ->where("p.name in (?1, ?2)")
+            ->where("p.name in (?1, ?2)") //whereで複数検索
             ->setParameters([
                 1 => $arr[0], 2 => $arr[1]])
             ->getQuery()
@@ -74,17 +74,15 @@ class PersonRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findByNameOrMail($value)//名前かemailのどちらかでヒットしたもの
+    public function findByNameOrMail($value)//名前かemailのどちらかでヒットしたもの、orWhereを使えば検索項目を増やすことができる。
     {
         $builder = $this->createQueryBuilder('p');
         return $builder
-            ->where($builder->expr()->like('p.name', '?1'))
-            ->orWhere($builder->expr()->like('p.mail', '?2'))
-            ->setParameters(
-                [
-                    1 => '%' . $value . '%',
-                    2 => '%' . $value . '%'
-                ])
+            ->where($builder->expr()->like('p.name', '?1'))//一つ目
+            ->orWhere($builder->expr()->like('p.mail', '?2')) //一つ目
+            ->setParameters([ 1 => '%' . $value . '%', 2 => '%' . $value . '%'])
+            ->setFirstResult(0)
+            ->setMaxResults(1)
             ->getQuery()
             ->getResult();
     }
@@ -92,7 +90,9 @@ class PersonRepository extends ServiceEntityRepository
     public function findAllwithSort()
     {
         return $this->createQueryBuilder('p')
-            ->orderBy('p.age', 'DESC')
+            ->orderBy('p.age', 'DESC')//ソートする。
+            ->setFirstResult(0)//検索開始位置
+            ->setMaxResults(10)//検索最大数
             ->getQuery()
             ->getResult();
     }

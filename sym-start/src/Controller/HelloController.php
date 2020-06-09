@@ -44,12 +44,12 @@ class HelloController extends AbstractController
     public function find(Request $request)
     {
         $form = $this->createForm(FindType::class);//
+        $repository = $this->getDoctrine()//Personリポジトリーを取得
+            ->getRepository(Person::class);
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);
             $findstr = $form->getData()->getFind();//入力テキストを取得
-            $repository = $this->getDoctrine()//Personリポジトリーを取得
-                ->getRepository(Person::class);
-            $result = $repository->findByNameOrMail($findstr);
+            $result = $repository->findByName03($findstr);
         } else {
             $result = $repository->findAllwithSort();
         }

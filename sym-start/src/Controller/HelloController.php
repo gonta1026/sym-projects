@@ -20,7 +20,9 @@ use App\Form\PersonType;
 use App\Form\FindType;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 class HelloController extends AbstractController
 {
     /**
@@ -104,34 +106,39 @@ class HelloController extends AbstractController
     /**
      * @Route("/create", name="create")
      */
-    public function create(Request $request, ValidatorInterface $validator)//ValidatorInterfaceを追加する。
+    public function create(Request $request, ValidatorInterface $validator)
     {
-        //$person = new Person();//インスタンスを作ってフォームに渡していたがconfigureOptionsであらかじめに設定していたら不要になる。
-        //PersonType::classを呼びだすことであらかじめにフォームが作られたものを渡す。
-        $form = $this->createForm(PersonType::class);
-        $form->handleRequest($request);
+        $form = $this->createFormBuilder()
+            ->add('name', TextType::class, 
+                array(
+                    'required' => true,
+                    'constraints' => [
+                        new Assert\Length(array(
+                            'min' => 3, 'max' => 10, 
+                            'minMessage' => '３文字以上必要です。',
+                            'maxMessage' => '10文字以内にして下さい。'))
+                    ]
+                )
+            )
+            ->add('save', SubmitType::class, array('label' => 'Click'))
+            ->getForm();
+
+
         if ($request->getMethod() == 'POST'){
-            $person = $form->getData();
-            $errors = $validator->validate($person);
-            if (count($errors) == 0){
-                $manager = $this->getDoctrine()->getManager();
-                $manager->persist($person);
-                $manager->flush();
-                return $this->redirect('/hello');
+            $form->handleRequest($request);
+            if ($form->isValid()){
+                $msg = 'Hello, ' . $form->get('name')->getData() . '!';
             } else {
-                return $this->render('hello/create.html.twig', [
-                    'title' => 'Hello',
-                    'message' => 'error!',
-                    'form' => $form->createView(),
-                ]);
+                $msg = 'ERROR!';
             }
         } else {
-            return $this->render('hello/create.html.twig', [
-                'title' => 'Hello',
-                'message' => 'Create Entity',
-                'form' => $form->createView(),
-            ]); 
-        }
+            $msg = 'Send Form';
+        }  
+        return $this->render('hello/create.html.twig', [
+            'title' => 'Hello',
+            'message' => $msg,
+            'form' => $form->createView(),
+        ]);
     }
     /**
      * @Route("/update/{id}", name="update")

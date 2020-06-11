@@ -17,23 +17,24 @@ class Person
      */
     private $id;
 
+
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\NotBlank()
+     * @ORM\Column(type="string", length=255)
+     * 
      */
     private $name;
 
+
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Email()
-     * @Assert\NotBlank()
+     * 
+     * 
      */
     private $mail;
 
+
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Assert\Type(type="integer")
-     * @Assert\NotBlank()
      */
     private $age;
 

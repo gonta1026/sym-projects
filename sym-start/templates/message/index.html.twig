@@ -6,26 +6,20 @@
 
 
 {% block body %}
-<h2>Person table</h2>
+<h2>Messages</h2>
 <table>
 <tr>
     <th>Id</th>
+    <th>Content</th>
     <th>Name</th>
-    <th>Mail</th>
-    <th>Age</th>
-    <th>Messages</th>
+    <th>posted</th>
 </tr>
 {% for item in data %}
 <tr>   
     <td>{{item.id}}</td>
-    <td>{{item.name}}</td>
-    <td>{{item.mail}}</td>
-    <td>{{item.age}}</td>
-    <td><ul>
-    {% for msg in item.messages %}
-    <li>{{msg.content}}</li>
-    {% endfor %}
-    </ul></td>
+    <td>{{item.content}}</td>
+    <td>{{item.person.name}}</td>
+    <td>{{item.posted.format('Y-m-d H:i:s')}}</td>
 </tr>
 {% endfor %}
 </table>

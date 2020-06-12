@@ -108,37 +108,21 @@ class HelloController extends AbstractController
      */
     public function create(Request $request, ValidatorInterface $validator)
     {
-        $form = $this->createFormBuilder()
-            ->add('name', TextType::class, 
-                array(
-                    'required' => true,
-                    'constraints' => [
-                        new Assert\Length(array(
-                            'min' => 3, 'max' => 10, 
-                            'minMessage' => '３文字以上必要です。',
-                            'maxMessage' => '10文字以内にして下さい。'))
-                    ]
-                )
-            )
-            ->add('save', SubmitType::class, array('label' => 'Click'))
-            ->getForm();
-
-
+        $form = $this->createForm(PersonType::class);
+        $form->handleRequest($request);
         if ($request->getMethod() == 'POST'){
-            $form->handleRequest($request);
-            if ($form->isValid()){
-                $msg = 'Hello, ' . $form->get('name')->getData() . '!';
-            } else {
-                $msg = 'ERROR!';
-            }
+            $person = $form->getData();
+            $manager = $this->getDoctrine()->getManager();
+            $manager->persist($person);
+            $manager->flush();
+            return $this->redirect('/hello');
         } else {
-            $msg = 'Send Form';
-        }  
-        return $this->render('hello/create.html.twig', [
-            'title' => 'Hello',
-            'message' => $msg,
-            'form' => $form->createView(),
-        ]);
+            return $this->render('hello/create.html.twig', [
+                'title' => 'Hello',
+                'message' => 'Create Entity',
+                'form' => $form->createView()
+            ]);        
+        }
     }
     /**
      * @Route("/update/{id}", name="update")

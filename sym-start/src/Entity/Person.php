@@ -2,8 +2,9 @@
 namespace App\Entity;
 
 use App\Repository\PersonRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=PersonRepository::class)
@@ -38,6 +39,17 @@ class Person
      */
     private $age;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Message::class, mappedBy="person")
+     */
+    private $messages;
+
+    public function __construct()
+    {
+        $this->messages = new ArrayCollection();
+    }
+
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -77,5 +89,39 @@ class Person
         $this->age = $age;
 
         return $this;
+    }
+
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages[] = $message;
+            $message->setPerson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): self
+    {
+        if ($this->messages->contains($message)) {
+            $this->messages->removeElement($message);
+            // set the owning side to null (unless already changed)
+            if ($message->getPerson() === $this) {
+                $message->setPerson(null);
+            }
+        }
+
+        return $this;
+    }
+
+    //これだけ手動でセットさせる
+    public function __toString()
+    {
+        return $this->getName();
     }
 }

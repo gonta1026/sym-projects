@@ -17,8 +17,61 @@ class Message
      */
     private $id;
 
+    //ManyToOne(targetEntity=Person::class, inversedBy="messages")が重要
+    /**
+     * @ORM\ManyToOne(targetEntity=Person::class, inversedBy="messages")
+     * @ORM\JoinColumn(name="person_id", referencedColumnName="id")
+     */
+    private $person;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $content;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $posted;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getPerson(): ?Person
+    {
+        return $this->person;
+    }
+
+    public function setPerson(?Person $person): self
+    {
+        $this->person = $person;
+
+        return $this;
+    }
+
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function setContent(?string $content): self
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    public function getPosted(): ?\DateTimeInterface
+    {
+        return $this->posted;
+    }
+
+    public function setPosted(?\DateTimeInterface $posted): self
+    {
+        $this->posted = $posted;
+
+        return $this;
     }
 }

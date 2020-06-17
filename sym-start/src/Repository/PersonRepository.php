@@ -31,18 +31,6 @@ class PersonRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findByAge02($value)
-    {
-        $arr = explode(' ', $value);//空白で区切って配列にする。
-        $builder = $this->createQueryBuilder('p');
-        return $builder
-            ->where($builder->expr()->gte('p.age', '?1')) //以上
-            ->andWhere($builder->expr()->lte('p.age', '?2'))//以下
-            ->setParameters(array(1 => $arr[0], 2 => $arr[1]))//セット
-            ->getQuery()
-            ->getResult();
-    }
-
     public function findByName02($value)
     {
         $arr = explode(',', $value);// 『,』で区切った複数検索
@@ -50,6 +38,31 @@ class PersonRepository extends ServiceEntityRepository
             ->where("p.name in (?1, ?2)") //whereで複数検索
             ->setParameters([
                 1 => $arr[0], 2 => $arr[1]])
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllwithSort()
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.age', 'DESC') //ソートする。
+            ->setFirstResult(0) //検索開始位置
+            ->setMaxResults(10) //検索最大数
+            ->getQuery()
+            ->getResult();
+    }
+
+
+    /* expr() を使ったレコードの取得は下記を参考にする。 */
+
+    public function findByAge02($value)
+    {
+        $arr = explode(' ', $value); //空白で区切って配列にする。
+        $builder = $this->createQueryBuilder('p');
+        return $builder
+            ->where($builder->expr()->gte('p.age', '?1')) //以上
+            ->andWhere($builder->expr()->lte('p.age', '?2')) //以下
+            ->setParameters(array(1 => $arr[0], 2 => $arr[1])) //セット
             ->getQuery()
             ->getResult();
     }
@@ -87,13 +100,4 @@ class PersonRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findAllwithSort()
-    {
-        return $this->createQueryBuilder('p')
-            ->orderBy('p.age', 'DESC')//ソートする。
-            ->setFirstResult(0)//検索開始位置
-            ->setMaxResults(10)//検索最大数
-            ->getQuery()
-            ->getResult();
-    }
 }

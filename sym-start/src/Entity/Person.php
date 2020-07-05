@@ -120,8 +120,8 @@ class Person
     }
 
     //これだけ手動でセットさせる
-    public function __toString()
-    {
-        return $this->getName();
-    }
+    // public function __toString()
+    // {
+    //     return $this->getName();
+    // }
 }

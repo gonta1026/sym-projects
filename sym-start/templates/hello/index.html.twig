@@ -7,6 +7,8 @@
 
 {% block body %}
 <h2>Person table</h2>
+
+
 <table>
 <tr>
     <th>Id</th>
@@ -14,6 +16,8 @@
     <th>Mail</th>
     <th>Age</th>
     <th>Messages</th>
+    <th>delete</th>
+    <th>edit</th>
 </tr>
 {% for item in data %}
 <tr>   
@@ -21,11 +25,15 @@
     <td>{{item.name}}</td>
     <td>{{item.mail}}</td>
     <td>{{item.age}}</td>
-    <td><ul>
-    {% for msg in item.messages %}
-    <li>{{msg.content}}</li>
-    {% endfor %}
-    </ul></td>
+    <td>
+        <ul>
+            {% for msg in item.messages %}
+            <li>{{msg.content}}</li>
+            {% endfor %}
+        </ul>
+    </td>
+    <td><a href="{{ path('delete', {id: item.id}) }}">削除ボタン</a></td>
+    <td><a href="{{ path('update', {id: item.id}) }}">編集ページ</a></td>
 </tr>
 {% endfor %}
 </table>

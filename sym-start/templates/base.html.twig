@@ -9,6 +9,10 @@
     <body>
         <h1>{% block title %}{% endblock %}</h1>
         <div class="body">
+            <a href="{{path("hello")}}">helloページに移動</a>
+            <a href="{{path("find")}}">検索ページに移動</a>
+            <a href="{{path("find02")}}">検索ページ02に移動</a>
+            <a href="{{path("create")}}">createページに移動</a>
         {% block body %}{% endblock %}
         </div>
         <div id="footer">

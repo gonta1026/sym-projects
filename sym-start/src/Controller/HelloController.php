@@ -7,6 +7,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 //エンティティクラス
 use App\Entity\Person;
+use App\Entity\Message;
 // 基本クラス（たくさんのメソッドにアクセスできる）
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -31,10 +32,13 @@ class HelloController extends AbstractController
     public function index(Request $request)
     {
         $repository = $this->getDoctrine()->getRepository(Person::class);/* リポジトリーを取得 */
+        $messages = $this->getDoctrine()->getRepository(message::class);/* リポジトリーを取得 */
         $data = $repository->findall();
+        $data02 = $messages->findall();
         return $this->render('hello/index.html.twig', [
             'title' => 'Hello',
             'data' => $data,
+            'data02' => $data02,
         ]);
     }
 

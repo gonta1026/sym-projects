@@ -54,15 +54,16 @@ class MessageController extends AbstractController
             $errors = $validator->validate($message);
             if (count($errors) == 0) {
                 $manager = $this->getDoctrine()->getManager();
+                dump($manager);
                 $manager->persist($message);
                 $manager->flush();
-                return $this->redirect('/message');
+                // return $this->redirect('/message');
             } else {
                 $msg = "oh...can't posted...";
             }
         } else {
             $msg = 'type your message!';
-        }  
+        }
         return $this->render("message/create.html.twig", [
             'title' => 'Hello',
             'message' => $msg,

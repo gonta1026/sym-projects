@@ -24,8 +24,21 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+
 class HelloController extends AbstractController
 {
+
+    /**
+     * @Route("/pdf", name="pdf")
+     */
+    public function pdf(Request $request)
+    {
+        dump(__DIR__);
+        return $this->render('pdf/index.html.twig', [
+            'title' => 'Hello',
+        ]);
+    }
+
     /**
      * @Route("/hello", name="hello")
      */
@@ -35,6 +48,7 @@ class HelloController extends AbstractController
         $messages = $this->getDoctrine()->getRepository(message::class);/* リポジトリーを取得 */
         $data = $repository->findall();
         $data02 = $messages->findall();
+        dump($data);
         return $this->render('hello/index.html.twig', [
             'title' => 'Hello',
             'data' => $data,
@@ -51,17 +65,17 @@ class HelloController extends AbstractController
         $repository = $this->getDoctrine() //Personリポジトリーを取得
             ->getRepository(Person::class);
         $manager = $this->getDoctrine()->getManager();
-        $mapping = new ResultSetMappingBuilder($manager);//エンティティマネージャーを用意
-        $mapping->addRootEntityFromClassMetadata('App\Entity\Person', 'p');//Personエンティティをセット。『p』は使っていない。
+        $mapping = new ResultSetMappingBuilder($manager); //エンティティマネージャーを用意
+        $mapping->addRootEntityFromClassMetadata('App\Entity\Person', 'p'); //Personエンティティをセット。『p』は使っていない。
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);
-            $findstr = $form->getData()->getFind();//検索する文字列を取得
-            $arr = explode(',', $findstr);//配列にする。
-            $query = $manager->createNativeQuery(//第一引数にSQLを直接かける。第二引数にマッピングを入れる。
+            $findstr = $form->getData()->getFind(); //検索する文字列を取得
+            $arr = explode(',', $findstr); //配列にする。
+            $query = $manager->createNativeQuery( //第一引数にSQLを直接かける。第二引数にマッピングを入れる。
                 'SELECT * FROM person WHERE age between ?1 AND ?2',
                 $mapping
             )
-                ->setParameters(array(1 => $arr[0], 2 => $arr[1]));//値をセットする。
+                ->setParameters(array(1 => $arr[0], 2 => $arr[1])); //値をセットする。
             $result = $query->getResult();
         } else {
             $query = $manager->createNativeQuery(
@@ -82,15 +96,15 @@ class HelloController extends AbstractController
      */
     public function find02(Request $request)
     {
-        $form = $this->createForm(FindType::class);//
+        $form = $this->createForm(FindType::class); //
         $repository = $this->getDoctrine()
             ->getRepository(Person::class);
-            
-            if ($request->getMethod() == 'POST') {
+
+        if ($request->getMethod() == 'POST') {
             $manager = $this->getDoctrine()->getManager();
             $form->handleRequest($request);
             $findstr = $form->getData()->getFind();
-            $query = $manager->createQuery(//DQLを使ったパターン
+            $query = $manager->createQuery( //DQLを使ったパターン
                 "SELECT p FROM App\Entity\Person p 
             WHERE p.name = '{$findstr}'"
             );
@@ -98,6 +112,7 @@ class HelloController extends AbstractController
         } else {
             $result = $repository->findAllwithSort();
         }
+        dump($result);
         return $this->render('hello/find.html.twig', [
             'title' => 'Hello',
             'form' => $form->createView(),
@@ -114,7 +129,7 @@ class HelloController extends AbstractController
     {
         $form = $this->createForm(PersonType::class);
         $form->handleRequest($request);
-        if ($request->getMethod() == 'POST'){
+        if ($request->getMethod() == 'POST') {
             $person = $form->getData();
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($person);
@@ -125,19 +140,20 @@ class HelloController extends AbstractController
                 'title' => 'Hello',
                 'message' => 'Create Entity',
                 'form' => $form->createView()
-            ]);        
+            ]);
         }
     }
     /**
      * @Route("/update/{id}", name="update")
      */
-    public function update(Request $request, Person $person)//createとほとんど変わらない
+    public function update(Request $request, Person $person) //createとほとんど変わらない
     {
+        dump($person);
         $form = $this->createForm(PersonType::class, $person);
         if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);//ハンドリング
-            $manager = $this->getDoctrine()->getManager();//バインドされたフォームの値を取得
-            $manager->flush();//Symfonyは取得されたエンティティの内容が変更される操作をすベてチェックしているため更新時はpersistは不要らしい。
+            $form->handleRequest($request); //ハンドリング
+            $manager = $this->getDoctrine()->getManager(); //バインドされたフォームの値を取得
+            $manager->flush(); //Symfonyは取得されたエンティティの内容が変更される操作をすベてチェックしているため更新時はpersistは不要らしい。
             return $this->redirect('/hello');
         } else {
             return $this->render('hello/create.html.twig', [
@@ -153,10 +169,10 @@ class HelloController extends AbstractController
      */
     public function delete(Request $request, Person $person)
     {
-        $manager = $this->getDoctrine()->getManager();//マネージャーを作成
-        $manager->remove($person);//削除準備
-        $manager->flush();//DBへ永続化
-        return $this->redirect('/hello');
+        $manager = $this->getDoctrine()->getManager(); //マネージャーを作成
+        $manager->remove($person); //削除準備
+        $manager->flush(); //DBへ永続化
+        // return $this->redirect('/hello');
     }
 }
 

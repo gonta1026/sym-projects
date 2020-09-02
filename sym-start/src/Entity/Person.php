@@ -84,7 +84,7 @@ class Person
         return $this->age;
     }
 
-    public function setAge(?int $age): self
+    public function setAge($age)
     {
         $this->age = $age;
 
@@ -93,6 +93,7 @@ class Person
 
     public function getMessages(): Collection
     {
+        dump("kekeke");
         return $this->messages;
     }
 
@@ -115,13 +116,12 @@ class Person
                 $message->setPerson(null);
             }
         }
-
         return $this;
     }
 
     //これだけ手動でセットさせる
-    // public function __toString()
-    // {
-    //     return $this->getName();
-    // }
+    public function __toString()
+    {
+        return $this->getName();
+    }
 }

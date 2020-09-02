@@ -7,8 +7,15 @@
 
 {% block body %}
 <h2>{{message}}</h2>
+
 {{ form_start(form) }}
-{{ form_widget(form) }}
-{{ form_end(form) }}
+
+{{ form_label(form.person) }}
+{{ form_widget(form.person) }}
+
+{{ form_label(form.content) }}
+{{ form_widget(form.content) }}
+{{ form_end(form, {'render_rest': false}) }}
+
 {% endblock %}
 
